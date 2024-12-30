@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新年抽奖</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #ffecd2, #fcb69f);
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .header {
+            position: absolute;
+            top: 10px;
+            text-align: center;
+        }
+        .title {
+            font-size: 2.5em;
+            color: #d22323;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .title span {
+            margin: 0 10px;
+        }
+        .button {
+            background-color: #d22323;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 20px;
+            font-size: 1.5em;
+            cursor: pointer;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #a61c1c;
+            transform: scale(1.1);
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #333;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            display: none;
+        }
+        .modal-content {
+            background: rgba(50, 50, 50, 0.9); /* 半透明深色背景 */
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            border: 2px solid #d22323;
+            font-size: 1.5em;
+            font-family: 'Courier New', monospace;
+            max-width: 400px;
+            animation: popup 0.3s ease-out;
+            overflow: hidden;
+            line-height: 1.6;
+        }
+        .modal-content span {
+            display: inline-block;
+            animation: fadeIn 0.5s ease-in-out forwards;
+            opacity: 0;
+        }
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        @keyframes popup {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .footer span {
+            font-size: 2em;
+            margin: 0 10px;
+            animation: bounce 2s infinite;
+            animation-delay: calc(var(--i) * 0.2s);
+        }
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            color: white;
+            font-size: 1em;
+            animation: fall linear infinite;
+            z-index: 1000;
+        }
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0.5;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title"><span>🦌</span>2025 新年抽奖活动<span>🦌</span></h1>
+    </div>
+    <button class="button" id="drawButton">抽奖</button>
+    <div class="message" id="message">您共有5次抽奖机会！来试一试吧！</div>
+    <div class="modal" id="modal">
+        <div class="modal-content" id="modalContent"></div>
+    </div>
+    <div class="footer">
+        <span style="--i:0;">🐸</span><span style="--i:1;">🐸</span><span style="--i:2;">🐸</span>
+    </div>
+    <script>
+        const chances = 5;
+        let remaining = chances;
+        const rewards = [
+            "恭喜你！获得 tempt 蛇年限定一瓶！",
+            "wow~ 是诱～惑～7～号～哦～",
+            "锵锵！天使降临到了你身边～恭喜获得天使之手！",
+            "咚咚咚～是酸酸甜甜的桃子啤酒！",
+            "噔↘噔↗噔→⭐金色传说⭐！获得 WTZ 新年祝福一份！",
+            "机会用完了哦～请到 504 领奖处领取奖励！"
+        ];
+
+        const button = document.getElementById('drawButton');
+        const message = document.getElementById('message');
+        const modal = document.getElementById('modal');
+        const modalContent = document.getElementById('modalContent');
+
+        button.addEventListener('click', () => {
+            modalContent.innerHTML = '';
+            const reward = remaining > 0 ? rewards[chances - remaining] : rewards[chances];
+            [...reward].forEach((char, i) => {
+                const span = document.createElement('span');
+                span.textContent = char;
+                span.style.animationDelay = `${i * 0.05}s`;
+                modalContent.appendChild(span);
+            });
+            modal.style.display = 'flex';
+            if (remaining > 0) {
+                remaining--;
+                message.textContent = `您共有${remaining}次抽奖机会！来试一试吧！`;
+            }
+        });
+
+        modal.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        const createSnowflake = () => {
+            const snowflake = document.createElement('div');
+            snowflake.className = 'snowflake';
+            snowflake.textContent = '❄';
+            snowflake.style.left = `${Math.random() * 100}vw`;
+            snowflake.style.animationDuration = `${Math.random() * 3 + 2}s`;
+            snowflake.style.fontSize = `${Math.random() * 10 + 10}px`;
+            document.body.appendChild(snowflake);
+            setTimeout(() => {
+                snowflake.remove();
+            }, 5000);
+        };
+        setInterval(createSnowflake, 200);
+    </script>
+</body>
+</html>
